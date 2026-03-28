@@ -225,24 +225,9 @@ See `api-curl-commands.md` for full curl examples with expected responses.
 
 ## Deployment
 
-### Frontend → Vercel
-
-1. Connect the `vitto/frontend` directory to a Vercel project
-2. Set environment variable: `VITE_API_URL=https://your-backend.onrender.com`
-3. Build command: `npm run build` | Output directory: `dist`
-4. The `vercel.json` handles client-side routing automatically
-
-### Backend → Render
-
-1. Create a new Web Service on Render
-2. Set root directory to `backend/`
-3. Build command: `npm install`
-4. Start command: `npm start`
-5. Add environment variables from `.env.example` in the Render dashboard
-
 **Live URLs**
-- Frontend: `https://vitto.vercel.app`
-- Backend API: `https://vitto-api.onrender.com`
+- Frontend: `https://vittoassignment.vercel.app/`
+- Backend API: `https://vittoassignment.onrender.com/`
 
 ---
 
