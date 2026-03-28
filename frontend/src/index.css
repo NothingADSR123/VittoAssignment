@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: #1A1A2E;
+  --color-brand-surface: #16213E;
+  --color-brand-card: #0F3460;
+  --color-brand-red: #D32F2F;
+  --color-brand-red-hover: #B71C1C;
+  --color-brand-muted: #8892A4;
+  --color-brand-text: #E8EAF0;
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #1A1A2E;
+  color: #E8EAF0;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
