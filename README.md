@@ -1,21 +1,88 @@
 # Vitto – AI-Native Fintech Infrastructure
 
+> Full Stack Intern Assignment — Vitto Technologies
+
 AI-first infrastructure for banks, NBFCs, and MFIs. Covers the full lending lifecycle: acquisition, underwriting, collections, LMS, and CRM.
 
 <img width="1902" height="866" alt="image" src="https://github.com/user-attachments/assets/398dba29-d420-42a2-bc29-54de201185bf" />
 
 ---
 
-## Project Structure
+## About This Assignment
+
+This repository is a submission for the Vitto Full Stack Intern assignment. The task was to build the public-facing product website for Vitto — an AI-native digital credit infrastructure platform — along with a working backend API and sign-up flow.
+
+The assignment covers product thinking, frontend engineering, backend API design, and database architecture. Every page, component, and API endpoint was built from scratch to reflect Vitto's positioning as infrastructure for Banks, NBFCs, and MFIs — not a generic fintech SaaS product.
+
+### What the assignment asked for
+
+| Deliverable | Description |
+|---|---|
+| Website Sitemap | Structured sitemap with purpose, audience, and conversion goal per page |
+| Homepage | Full React homepage with 8 sections matching the design spec |
+| AI Platform Page | Deep-dive into all 6 AI modules with technical copy |
+| Full Stack Automation Page | 5 operational layers with 29+ submodules, structured with visual hierarchy |
+| Thought Leadership Article | 700-word article: "Retrofit AI vs AI-Native Infrastructure in BFSI" |
+| Self Sign-Up Flow | 3-step frontend flow + full backend API with OTP, JWT, PostgreSQL, MongoDB |
+
+---
+
+## What This Repo Contains
 
 ```
 vitto/
-├── frontend/          # React + Vite + Tailwind CSS
-├── backend/           # Node.js + Express
-├── sitemap.md         # Page-level sitemap with purpose and audience
-├── article-retrofit-vs-ainative.md
+├── frontend/                        # React + Vite + Tailwind CSS
+│   ├── src/
+│   │   ├── pages/                   # 9 pages (Homepage, Platform, Collections, etc.)
+│   │   ├── components/
+│   │   │   ├── home/                # 7 homepage sections as individual components
+│   │   │   ├── Navbar.jsx
+│   │   │   └── Footer.jsx
+│   │   ├── App.jsx                  # React Router setup
+│   │   └── main.jsx
+│   ├── vercel.json                  # Vercel routing config for React Router
+│   └── .env.example
+│
+├── backend/                         # Node.js + Express
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── postgres.js          # Supabase PostgreSQL connection
+│   │   │   └── mongo.js             # MongoDB Atlas connection
+│   │   ├── models/
+│   │   │   └── otp.model.js         # Mongoose OTP schema with TTL index
+│   │   ├── controllers/             # Request/response handlers
+│   │   ├── services/                # Business logic layer
+│   │   ├── routes/                  # Express route definitions
+│   │   └── server.js                # App entry point
+│   ├── migrations/
+│   │   └── 001_add_status_to_leads.sql
+│   ├── render.yaml                  # Render deployment config
+│   └── .env.example
+│
+├── sitemap.md                       # Full sitemap with audience + conversion goals
+├── article-retrofit-vs-ainative.md  # Thought leadership article (Deliverable 5)
+├── api-curl-commands.md             # curl commands for all 4 API endpoints
+├── submission-writeup.md            # Approach, design decisions, challenges
 └── README.md
 ```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite, Tailwind CSS, React Router v6 |
+| Backend | Node.js, Express, express-validator, JWT |
+| Primary DB | PostgreSQL via Supabase (lead storage) |
+| Session DB | MongoDB Atlas (OTP sessions with TTL) |
+| Deployment | Vercel (frontend) + Render (backend) |
+
+---
+
+## Project Structure
+
+The frontend and backend are separate folders within this monorepo. Run them independently.
 
 ---
 
@@ -24,10 +91,8 @@ vitto/
 ### Prerequisites
 
 - Node.js >= 18
-- PostgreSQL >= 14
-- MongoDB >= 6
-
----
+- A Supabase account (free tier) for PostgreSQL
+- A MongoDB Atlas account (free tier) for OTP sessions
 
 ### Frontend
 
@@ -50,19 +115,48 @@ npm run dev        # http://localhost:5000
 
 ## Environment Variables
 
-Copy `backend/.env.example` to `backend/.env` and set:
+Copy `backend/.env.example` to `backend/.env` and fill in:
 
 | Variable | Description |
 |---|---|
 | `PORT` | Backend port (default: 5000) |
-| `PG_HOST` | PostgreSQL host |
-| `PG_PORT` | PostgreSQL port |
-| `PG_DATABASE` | Database name |
-| `PG_USER` | Database user |
-| `PG_PASSWORD` | Database password |
-| `MONGO_URI` | MongoDB connection string |
+| `DATABASE_URL` | Supabase PostgreSQL connection string (URI format) |
+| `MONGO_URI` | MongoDB Atlas connection string |
 | `JWT_SECRET` | Secret for signing JWTs (min 32 chars) |
 | `JWT_EXPIRES_IN` | Token expiry (e.g. `7d`) |
+
+For the frontend, `VITE_API_URL` is only needed in production (Vercel). Locally, Vite's proxy handles `/api` requests automatically.
+
+---
+
+## Database Setup
+
+### PostgreSQL (Supabase)
+
+Run this in your Supabase SQL Editor:
+
+```sql
+CREATE TABLE IF NOT EXISTS leads (
+  id                SERIAL PRIMARY KEY,
+  email             VARCHAR(255),
+  phone             VARCHAR(20),
+  institution_name  VARCHAR(255) NOT NULL,
+  institution_type  VARCHAR(100),
+  city              VARCHAR(100),
+  loan_book_size    VARCHAR(50),
+  status            VARCHAR(50) DEFAULT 'new',
+  created_at        TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+If the table already exists without the `status` column:
+```sql
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'new';
+```
+
+### MongoDB (Atlas)
+
+No manual setup needed. The OTP collection and TTL index are created automatically by Mongoose when the server first starts.
 
 ---
 
@@ -88,7 +182,7 @@ Copy `backend/.env.example` to `backend/.env` and set:
 ```
 Returns: `{ "token": "<jwt>" }`
 
----
+> OTP is printed to the backend terminal in development (mock mode — no real SMS/email).
 
 ### Leads
 
@@ -109,35 +203,23 @@ Returns: `{ "token": "<jwt>" }`
 }
 ```
 
+See `api-curl-commands.md` for full curl examples with expected responses.
+
 ---
 
-## Database
+## Pages
 
-### PostgreSQL – leads table
-
-Created automatically on first server start:
-
-```sql
-CREATE TABLE leads (
-  id                SERIAL PRIMARY KEY,
-  email             VARCHAR(255),
-  phone             VARCHAR(20),
-  institution_name  VARCHAR(255) NOT NULL,
-  institution_type  VARCHAR(100),
-  city              VARCHAR(100),
-  loan_book_size    VARCHAR(50),
-  created_at        TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-### MongoDB – OTP collection
-
-Schema with TTL index (auto-expires after 10 minutes):
-
-```js
-{ identifier: String, otp: String, createdAt: Date }
-// TTL index: expires: 600 (seconds)
-```
+| Route | Page | Purpose |
+|---|---|---|
+| `/` | Homepage | Full 8-section homepage with hero, problem, solution, modules, impact, social proof |
+| `/platform` | AI Platform | Deep-dive into all 6 AI modules |
+| `/lending-lifecycle` | Full Stack Automation | 5 operational layers with submodules |
+| `/collections` | Collections Intelligence | Propensity scoring, contact orchestration |
+| `/agentic-ai` | Agentic AI | RAG pipeline, SLM vs LLM, 3 AI agents |
+| `/api-infrastructure` | API Infrastructure | Endpoints, SLAs, sandbox, webhooks |
+| `/about` | About | Mission, values, team context |
+| `/contact` | Request Demo | Lead capture form |
+| `/signup` | Self Sign-Up | 3-step OTP-verified onboarding flow |
 
 ---
 
@@ -158,22 +240,15 @@ Schema with TTL index (auto-expires after 10 minutes):
 4. Start command: `npm start`
 5. Add environment variables from `.env.example` in the Render dashboard
 
-**Deployment URLs (update after deploying)**
+**Live URLs**
 - Frontend: `https://vitto.vercel.app`
 - Backend API: `https://vitto-api.onrender.com`
 
 ---
 
-## Pages
+## Other Files
 
-| Route | Page |
-|---|---|
-| `/` | Homepage |
-| `/platform` | AI Platform (6 modules) |
-| `/lending-lifecycle` | Full Stack Automation |
-| `/collections` | Collections Intelligence |
-| `/agentic-ai` | Agentic AI + RAG |
-| `/api-infrastructure` | API Infrastructure |
-| `/about` | About |
-| `/contact` | Request Demo |
-| `/signup` | Self Sign-Up (3-step) |
+- `sitemap.md` — full sitemap with strategic purpose, target audience, and conversion goal for each page
+- `article-retrofit-vs-ainative.md` — thought leadership article comparing retrofit AI vs AI-native infrastructure in BFSI
+- `api-curl-commands.md` — ready-to-run curl commands for testing all 4 API endpoints
+- `submission-writeup.md` — 1–2 page write-up covering approach, design decisions, and what I'd do differently
