@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../api'
 
 const institutionTypes = ['Bank', 'NBFC', 'MFI', 'Fintech', 'Housing Finance Company', 'Other']
 const loanBookSizes = ['< ₹100 Cr', '₹100–500 Cr', '₹500 Cr–2,000 Cr', '> ₹2,000 Cr']
@@ -54,7 +54,7 @@ export default function SignUpPage() {
     setError('')
     try {
       const isEmail = contact.includes('@')
-      await axios.post('/api/auth/send-otp', isEmail ? { email: contact } : { phone: contact })
+      await api.post('/api/auth/send-otp', isEmail ? { email: contact } : { phone: contact })
       setOtpSent(true)
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP. Try again.')
@@ -69,7 +69,7 @@ export default function SignUpPage() {
     setError('')
     try {
       const isEmail = contact.includes('@')
-      const res = await axios.post('/api/auth/verify-otp', {
+      const res = await api.post('/api/auth/verify-otp', {
         ...(isEmail ? { email: contact } : { phone: contact }),
         otp,
       })
@@ -90,7 +90,7 @@ export default function SignUpPage() {
     setError('')
     try {
       const isEmail = contact.includes('@')
-      await axios.post(
+      await api.post(
         '/api/leads',
         { ...(isEmail ? { email: contact } : { phone: contact }), ...form },
         { headers: { Authorization: `Bearer ${token}` } }

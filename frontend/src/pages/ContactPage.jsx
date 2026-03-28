@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../api'
 
 const institutionTypes = ['Bank', 'NBFC', 'MFI', 'Fintech', 'Housing Finance Company', 'Other']
 const loanBookSizes = ['< ₹100 Cr', '₹100–500 Cr', '₹500 Cr–2,000 Cr', '> ₹2,000 Cr']
@@ -19,7 +19,7 @@ export default function ContactPage() {
     setStatus('loading')
     setError('')
     try {
-      await axios.post('/api/leads', form)
+      await api.post('/api/leads', form)
       setStatus('success')
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.')
