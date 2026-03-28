@@ -2,6 +2,8 @@
 
 AI-first infrastructure for banks, NBFCs, and MFIs. Covers the full lending lifecycle: acquisition, underwriting, collections, LMS, and CRM.
 
+<img width="1902" height="866" alt="image" src="https://github.com/user-attachments/assets/398dba29-d420-42a2-bc29-54de201185bf" />
+
 ---
 
 ## Project Structure
